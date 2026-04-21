@@ -1,0 +1,18 @@
+==>Authentication
+    ->Register✅
+    ->Login✅
+    ->Logout(Token Black Listing)
+    ->OTP based Registration
+
+==>Post
+    ->Create
+    ->Can see the Feed
+    ->Like posts(collection types)
+    ->save posts
+
+==>User
+    ->Follow
+    ->Following
+
+Learning
+Cloud Storage Provider->ImageKit
