@@ -5,7 +5,7 @@
     ->OTP based Registration
 
 ==>Post
-    ->Create
+    ->Create✅
     ->Can see the Feed
     ->Like posts(collection types)
     ->save posts
@@ -14,5 +14,10 @@
     ->Follow
     ->Following
 
+
 Learning
-Cloud Storage Provider->ImageKit
+Cloud Storage Provider->ImageKit,s3,cloudinaryk
+->using of Multer
+two types of storage in Multer
+->disk storage
+->Memory storage(used in this project)
