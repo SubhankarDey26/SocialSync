@@ -6,7 +6,7 @@
 
 ==>Post
     ->Create✅
-    ->Can see the Feed
+    ->Can see the Feed✅
     ->Like posts(collection types)
     ->save posts
 
