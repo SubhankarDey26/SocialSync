@@ -7,12 +7,12 @@
 ==>Post
     ->Create✅
     ->Can see the Feed✅
-    ->Like posts(collection types)
+    ->Like posts(collection types)✅
     ->save posts
 
 ==>User
-    ->Follow
-    ->Following
+    ->Follow✅
+    ->Following✅
 
 
 Learning
@@ -21,3 +21,4 @@ Cloud Storage Provider->ImageKit,s3,cloudinaryk
 two types of storage in Multer
 ->disk storage
 ->Memory storage(used in this project)
+->Learned About middleware
