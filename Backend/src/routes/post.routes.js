@@ -9,9 +9,11 @@ const upload=multer({storage:multer.memoryStorage()})
 
 postRouter.post("/",upload.single("image"),IdentifyUser,postController.createPostController)
 
-
 postRouter.get("/",IdentifyUser,postController.getPostController)
 
 postRouter.get("/details/:postId",IdentifyUser,postController.getPostDetails)
+
+
+postRouter.post("/like/:postId",IdentifyUser,postController.LikePostController)
 
 module.exports=postRouter
