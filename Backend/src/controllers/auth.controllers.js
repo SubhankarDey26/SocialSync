@@ -2,6 +2,8 @@ const bcrypt=require("bcryptjs")
 const jwt=require("jsonwebtoken")
 const userModel=require("../models/user.model")
 
+
+
 async function registerController(req,res){
     const {email,username,password,bio,profileImage}=req.body
 
@@ -110,4 +112,21 @@ async function logincontroller(req,res){
     })
 }
 
-module.exports={registerController,logincontroller}
+async function getMeController(req, res) {
+
+    const userId = req.user.id;
+
+    const user = await userModel.findById(userId);
+
+    res.status(200).json({
+        user: {
+            username: user.username,
+            email: user.email,
+            bio: user.bio,
+            profileImage: user.ProfileImage
+        }
+    });
+    
+}
+
+module.exports={registerController,logincontroller,getMeController}
