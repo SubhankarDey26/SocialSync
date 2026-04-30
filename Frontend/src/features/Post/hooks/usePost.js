@@ -4,8 +4,13 @@ import {postContext} from "../post.context"
 
 export const usePost=()=>{
 
-    const context=useContext(postContext)
-    const {loading,setloading,feed,setfeed,post,setpost}=context
+    const context = useContext(postContext)
+
+    if (!context) {
+        throw new Error("usePost must be used within PostContextProvider")
+    }
+
+    const {loading,setloading,feed,setfeed,post}=context
 
     const handleGetFeed=async()=>{
         setloading(true)
