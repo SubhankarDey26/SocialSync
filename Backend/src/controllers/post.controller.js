@@ -3,6 +3,7 @@ const ImageKit = require("@imagekit/nodejs")
 const { toFile } = require("@imagekit/nodejs")
 const jwt = require("jsonwebtoken")
 const LikeModel=require("../models/Like.model")
+const { post } = require("../routes/post.routes")
 
 const imagekit = new ImageKit({
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY
@@ -30,7 +31,6 @@ async function createPostController(req, res) {
     })
 }
 
-
 async function getPostController(req, res) {
 
     const userId =req.user.id
@@ -46,7 +46,6 @@ async function getPostController(req, res) {
         })
 
 }
-
 
 async function getPostDetails(req,res){
 
@@ -96,6 +95,19 @@ async function LikePostController(req,res){
 }
 
 
+async function getFeedController(req,res){
+    const posts=await postModel.find().populate("user").select("-user.password")
+
+    res.status(200).json({
+        message:"Posts Fetched Successfully",
+        posts
+    })
+}
+
 module.exports = {
-    createPostController,getPostController,getPostDetails,LikePostController
+    createPostController,
+    getPostController,
+    getPostDetails,
+    LikePostController,
+    getFeedController
 }
