@@ -1,7 +1,7 @@
 import {createBrowserRouter} from "react-router"
 import Login from "./features/Auth/pages/Login"
 import Register from "./features/Auth/pages/Register"
-
+import Feed from "./features/Post/pages/Feed"
 export const router=createBrowserRouter([
     {
         path:"/login",
@@ -13,6 +13,6 @@ export const router=createBrowserRouter([
     },
     {
         path:"/",
-        element:<h1>Welcome to SocialSync</h1>
+        element:<Feed/>
     }
 ])

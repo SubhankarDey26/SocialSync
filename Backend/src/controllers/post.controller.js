@@ -96,7 +96,7 @@ async function LikePostController(req,res){
 
 
 async function getFeedController(req,res){
-    const posts=await postModel.find().populate("user").select("-user.password")
+    const posts=await postModel.find().populate("user").select("-user.password").populate("")
 
     res.status(200).json({
         message:"Posts Fetched Successfully",
