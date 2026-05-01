@@ -74,34 +74,71 @@ async function getPostDetails(req,res){
 }
 
 async function LikePostController(req,res){
-    const username=req.user.username
-    const postId=req.params.postId
+    try {
+        const username=req.user.username
+        const postId=req.params.postId
 
-    const post =await postModel.findById(postId)
+        const post =await postModel.findById(postId)
 
-    if(!post){
-        return res.status(404).json({
-            message:"Post not Found"
-        })
+        if(!post){
+            return res.status(404).json({
+                message:"Post not Found"
+            })
+        }
+
+        const existingLike = await LikeModel.findOne({
+            post: postId,
+            user: username
+        });
+
+        if (existingLike) {
+            // Unlike
+            await LikeModel.deleteOne({ _id: existingLike._id });
+            res.status(200).json({
+                message: "Post unliked successfully"
+            });
+        } else {
+            // Like
+            await LikeModel.create({
+                post: postId,
+                user: username
+            });
+            res.status(200).json({
+                message: "Post liked successfully"
+            });
+        }
+    } catch (error) {
+        console.error("Error in LikePostController:", error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
     }
-
-    const like =await LikeModel.create({
-        post:postId,
-        user:username
-    })
-    res.status(200).json({
-        message:("post Liked Succesfully")
-    })
 }
 
 
-async function getFeedController(req,res){
-    const posts=await postModel.find().populate("user", "-password")
+async function getFeedController(req, res) {
+    const user = req.user;
+
+    const posts = await Promise.all(
+        (await postModel.find().populate("user", "-password").lean())
+        .map(async (post) => {
+            const isLiked = await LikeModel.findOne({
+                user: user.username,
+                post: post._id.toString()
+            });
+
+            const likeCount = await LikeModel.countDocuments({ post: post._id.toString() });
+
+            post.isLiked = Boolean(isLiked);
+            post.likeCount = likeCount;
+            return post;
+        })
+    );
 
     res.status(200).json({
-        message:"Posts Fetched Successfully",
+        message: "Posts Fetched Successfully",
         posts
-    })
+    });
 }
 
 module.exports = {

@@ -1,13 +1,20 @@
 import { useState } from "react";
+import { likePost } from "../services/post.api";
 
-const Post = ({ post, user }) => {
-  const [liked, setLiked] = useState(false);
+const Post = ({ post, user, onLike }) => {
+  const [liked, setLiked] = useState(post.isLiked || false);
   const [saved, setSaved] = useState(false);
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 900) + 100);
+  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
 
-  const handleLike = () => {
-    setLiked((prev) => !prev);
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    try {
+      await likePost(post._id);
+      if (onLike) {
+        onLike();
+      }
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
   };
 
   const avatarSrc =

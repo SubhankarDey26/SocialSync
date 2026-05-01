@@ -3,8 +3,7 @@ const mongoose = require("mongoose")
 const LikeSchema = new mongoose.Schema(
   {
     post: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "posts",
+      type: String,
       required: [true, "post id is required for creating a like"]
     },
 
@@ -18,7 +17,7 @@ const LikeSchema = new mongoose.Schema(
   }
 )
 
-LikeSchema.index({post:1,users:1},{unique:true})
+LikeSchema.index({post:1,user:1},{unique:true})
 
 const LikeModel = mongoose.model("likes", LikeSchema)
 

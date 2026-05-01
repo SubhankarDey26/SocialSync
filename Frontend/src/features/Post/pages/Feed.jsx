@@ -35,7 +35,7 @@ const Feed = () => {
             </div>
           ) : (
             feed.map((post) => (
-              <Post key={post._id} post={post} user={post.user} />
+              <Post key={post._id} post={post} user={post.user} onLike={handleGetFeed} />
             ))
           )}
         </div>
