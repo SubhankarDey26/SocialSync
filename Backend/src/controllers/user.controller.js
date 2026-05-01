@@ -1,11 +1,17 @@
+const bcrypt = require("bcryptjs")
+const ImageKit = require("@imagekit/nodejs")
+const { toFile } = require("@imagekit/nodejs")
 const FollowModel = require("../models/Follow.model")
 const UserModel = require("../models/user.model")
+
+const imagekit = new ImageKit({
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY
+})
 
 async function followUserController(req, res) {
     const followerUsername = req.user.username
     const followeeUsername = req.params.username
 
-    // ✅ check user in User collection
     const isFolloweeExist = await UserModel.findOne({
         username: followeeUsername
     })
@@ -45,27 +51,85 @@ async function followUserController(req, res) {
     })
 }
 
-async function UnfollowUserController(req,res){
-    const followerUsername=req.user.username
-    const followeeUsername=req.params.username 
+async function UnfollowUserController(req, res) {
+    const followerUsername = req.user.username
+    const followeeUsername = req.params.username
 
-    const isUserFollowing =await FollowModel.findOne({
+    const isUserFollowing = await FollowModel.findOne({
         follower: followerUsername,
         followee: followeeUsername
     })
 
-    if(!isUserFollowing)
-    {
+    if (!isUserFollowing) {
         return res.status(200).json({
-            message:`You are not Following ${followeeUsername}`
+            message: `You are not Following ${followeeUsername}`
         })
     }
 
     await FollowModel.findByIdAndDelete(isUserFollowing._id)
 
     res.status(200).json({
-        message:`You have unfollowed ${followeeUsername}`
+        message: `You have unfollowed ${followeeUsername}`
     })
 }
 
-module.exports={followUserController,UnfollowUserController}
+async function updateProfileController(req, res) {
+    const userId = req.user.id
+    const { username, email, bio, password, profileImage } = req.body
+
+    const updates = {
+        ...(username && { username }),
+        ...(email && { email }),
+        ...(bio !== undefined && { bio }),
+        ...(profileImage && { ProfileImage: profileImage })
+    }
+
+    try {
+        if (req.file) {
+            const file = await imagekit.files.upload({
+                file: await toFile(Buffer.from(req.file.buffer), `profile-${userId}`),
+                fileName: `profile-${userId}`,
+                folder: "cohort-2-insta-clone-profiles"
+            })
+            updates.ProfileImage = file.url
+        }
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10)
+            updates.password = hashedPassword
+        }
+
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            userId,
+            updates,
+            { new: true, runValidators: true }
+        )
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                message: "User not found"
+            })
+        }
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                username: updatedUser.username,
+                email: updatedUser.email,
+                bio: updatedUser.bio,
+                profileImage: updatedUser.ProfileImage
+            }
+        })
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({
+                message: "Username or email is already taken"
+            })
+        }
+        res.status(500).json({
+            message: "Internal server error"
+        })
+    }
+}
+
+module.exports = { followUserController, UnfollowUserController, updateProfileController }

@@ -427,3 +427,68 @@
   .feed-main { padding: 1rem 0.75rem; }
   .post-card { border-radius: var(--radius-md); }
 }
+
+
+/* ─────────────────────────────────────────────────
+   Add these rules to your existing feed.scss
+   (or keep them in a separate sidebar-patch.scss
+   and @import it inside feed.scss)
+───────────────────────────────────────────────── */
+
+/* ── Top avatar in sidebar ── */
+.sidebar-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+}
+
+.sidebar-avatar-ring {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--accent), #fb923c);
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.4);
+  }
+}
+
+.sidebar-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid var(--surface);
+}
+
+/* ── Followers / Following nav pills ── */
+.followers-btn,
+.following-btn {
+  color: var(--text-2) !important;
+  font-size: 0.88rem !important;
+
+  &:hover {
+    background: var(--surface-2) !important;
+    color: var(--text-1) !important;
+  }
+}
+
+/* ── Logout button ── */
+.logout-item {
+  margin-top: auto;
+  color: var(--text-3) !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
