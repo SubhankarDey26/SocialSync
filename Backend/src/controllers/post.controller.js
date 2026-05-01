@@ -119,8 +119,20 @@ async function LikePostController(req,res){
 async function getFeedController(req, res) {
     const user = req.user;
 
+    // Get list of users that the current user is following (accepted follows)
+    const following = await FollowModel.find({
+        follower: user.username,
+        status: 'accepted'
+    }).select('followee');
+
+    const followingUsernames = following.map(f => f.followee);
+    // Include user's own posts
+    followingUsernames.push(user.username);
+
     const posts = await Promise.all(
-        (await postModel.find().populate("user", "-password").lean())
+        (await postModel.find({
+            'user.username': { $in: followingUsernames }
+        }).populate("user", "-password").lean())
         .map(async (post) => {
             const isLiked = await LikeModel.findOne({
                 user: user.username,

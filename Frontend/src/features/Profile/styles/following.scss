@@ -1,0 +1,86 @@
+.following-main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.following-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.following-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.no-following {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+
+  p {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+.following-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.following-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  background: #fafbfc;
+
+  &:hover {
+    background: #f6f8fa;
+  }
+}
+
+.following-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.following-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.following-username {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.following-email {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.following-bio {
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #666;
+}

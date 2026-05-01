@@ -12,4 +12,14 @@ userRouter.post("/unfollow/:username", IdentifyUser, userController.UnfollowUser
 
 userRouter.put("/profile", upload.single("profileImage"), IdentifyUser, userController.updateProfileController)
 
+userRouter.get("/follow-requests", IdentifyUser, userController.getFollowRequestsController)
+
+userRouter.post("/follow-requests/:requestId/accept", IdentifyUser, userController.acceptFollowRequestController)
+
+userRouter.post("/follow-requests/:requestId/reject", IdentifyUser, userController.rejectFollowRequestController)
+
+userRouter.get("/followers", IdentifyUser, userController.getFollowersController)
+
+userRouter.get("/following", IdentifyUser, userController.getFollowingController)
+
 module.exports = userRouter
