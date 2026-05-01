@@ -4,32 +4,54 @@ const { toFile } = require("@imagekit/nodejs")
 const jwt = require("jsonwebtoken")
 const LikeModel=require("../models/Like.model")
 const { post } = require("../routes/post.routes")
+const FollowModel = require("../models/follow.model");
 
 const imagekit = new ImageKit({
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY
 })
 
 
-async function createPostController(req, res) {
+// async function createPostController(req, res) {
    
 
+//     const file = await imagekit.files.upload({
+//         file: await toFile(Buffer.from(req.file.buffer), 'file'),
+//         fileName: "Test",
+//         folder: "cohort-2-insta-clone-posts"
+//     })
+
+//     const post = await postModel.create({
+//         caption: req.body.caption,
+//         imgUrl: file.url,
+//         user: req.user.id
+//     })
+
+//     res.status(201).json({
+//         message: "Post created successfully.",
+//         post
+//     })
+// }
+
+async function createPostController(req, res) {
     const file = await imagekit.files.upload({
         file: await toFile(Buffer.from(req.file.buffer), 'file'),
         fileName: "Test",
         folder: "cohort-2-insta-clone-posts"
-    })
+    });
 
     const post = await postModel.create({
         caption: req.body.caption,
         imgUrl: file.url,
         user: req.user.id
-    })
+    });
 
     res.status(201).json({
         message: "Post created successfully.",
         post
-    })
+    });
 }
+
+
 
 async function getPostController(req, res) {
 
@@ -116,22 +138,69 @@ async function LikePostController(req,res){
 }
 
 
+// async function getFeedController(req, res) {
+//     const user = req.user;
+
+//     // Get list of users that the current user is following (accepted follows)
+//     const following = await FollowModel.find({
+//         follower: user.username,
+//         status: 'accepted'
+//     }).select('followee');
+
+//     const followingUsernames = following.map(f => f.followee);
+//     // Include user's own posts
+//     followingUsernames.push(user.username);
+
+//     const posts = await Promise.all(
+//         (await postModel.find({
+//             'user.username': { $in: followingUsernames }
+//         }).populate("user", "-password").lean())
+//         .map(async (post) => {
+//             const isLiked = await LikeModel.findOne({
+//                 user: user.username,
+//                 post: post._id.toString()
+//             });
+
+//             const likeCount = await LikeModel.countDocuments({ post: post._id.toString() });
+
+//             post.isLiked = Boolean(isLiked);
+//             post.likeCount = likeCount;
+//             return post;
+//         })
+//     );
+
+//     res.status(200).json({
+//         message: "Posts Fetched Successfully",
+//         posts
+//     });
+// }
+
+
 async function getFeedController(req, res) {
     const user = req.user;
 
-    // Get list of users that the current user is following (accepted follows)
+    // Step 1: Get following usernames
     const following = await FollowModel.find({
         follower: user.username,
-        status: 'accepted'
-    }).select('followee');
+        status: "accepted"
+    }).select("followee");
 
-    const followingUsernames = following.map(f => f.followee);
-    // Include user's own posts
+    let followingUsernames = following.map(f => f.followee);
+
+    // include self
     followingUsernames.push(user.username);
 
+    // Step 2: Convert usernames → userIds
+    const users = await UserModel.find({
+        username: { $in: followingUsernames }
+    }).select("_id");
+
+    const userIds = users.map(u => u._id);
+
+    // Step 3: Fetch posts
     const posts = await Promise.all(
         (await postModel.find({
-            'user.username': { $in: followingUsernames }
+            user: { $in: userIds }
         }).populate("user", "-password").lean())
         .map(async (post) => {
             const isLiked = await LikeModel.findOne({
@@ -139,7 +208,9 @@ async function getFeedController(req, res) {
                 post: post._id.toString()
             });
 
-            const likeCount = await LikeModel.countDocuments({ post: post._id.toString() });
+            const likeCount = await LikeModel.countDocuments({
+                post: post._id.toString()
+            });
 
             post.isLiked = Boolean(isLiked);
             post.likeCount = likeCount;
@@ -148,10 +219,11 @@ async function getFeedController(req, res) {
     );
 
     res.status(200).json({
-        message: "Posts Fetched Successfully",
+        message: "Feed fetched successfully",
         posts
     });
 }
+
 
 module.exports = {
     createPostController,
