@@ -8,12 +8,37 @@ const userRouter=require("../src/routes/user.routes")
 const app=express()
 app.use(express.json())
 app.use(cookieParser())
+// app.use(cors({
+//     credentials:true,
+//     origin:"http://localhost:5173"
+// }))
+
+
+
 app.use(cors({
-    credentials:true,
-    origin:"http://localhost:5173"
-}))
+    origin: true,
+    credentials: true
+}));
 
 app.use(express.static("./public"))
+
+
+
+
+const path = require("path");
+
+// Serve static frontend
+app.use(express.static(path.join(__dirname, "../public")));
+
+// React fallback (for routes like /login, /profile)
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
+
+
+
+
 
 
 app.use("/api/auth",authRouter)
