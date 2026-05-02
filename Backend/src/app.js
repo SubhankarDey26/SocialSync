@@ -20,7 +20,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.static("./public"))
+
+// app.use(express.static("./public"))
 
 
 
@@ -45,5 +46,9 @@ app.use("/api/auth",authRouter)
 app.use("/api/posts",postRouter)
 app.use("/api/users",userRouter)
 
+
+app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
 module.exports=app
