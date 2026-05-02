@@ -3,7 +3,7 @@ const ImageKit = require("@imagekit/nodejs")
 const { toFile } = require("@imagekit/nodejs")
 const jwt = require("jsonwebtoken")
 const LikeModel=require("../models/Like.model")
-const { post } = require("../routes/post.routes")
+const UserModel = require("../models/user.model")
 const FollowModel = require("../models/follow.model");
 
 const imagekit = new ImageKit({
@@ -176,44 +176,102 @@ async function LikePostController(req,res){
 // }
 
 
+// async function getFeedController(req, res) {
+//     const user = req.user;
+
+//     // Step 1: Get following usernames
+//     const following = await FollowModel.find({
+//         follower: user.username,
+//         status: "accepted"
+//     }).select("followee");
+
+//     let followingUsernames = following.map(f => f.followee);
+
+//     // include self
+//     followingUsernames.push(user.username);
+
+//     // Step 2: Convert usernames → userIds
+//     const users = await UserModel.find({
+//         username: { $in: followingUsernames }
+//     }).select("_id");
+
+//     const userIds = users.map(u => u._id);
+
+//     // Step 3: Fetch posts
+//     const posts = await Promise.all(
+//         (await postModel.find({
+//             user: { $in: userIds }
+//         }).populate("user", "-password").lean())
+//         .map(async (post) => {
+//             const isLiked = await LikeModel.findOne({
+//                 user: user.username,
+//                 post: post._id.toString()
+//             });
+
+//             const likeCount = await LikeModel.countDocuments({
+//                 post: post._id.toString()
+//             });
+
+//             post.isLiked = Boolean(isLiked);
+//             post.likeCount = likeCount;
+//             return post;
+//         })
+//     );
+
+//     res.status(200).json({
+//         message: "Feed fetched successfully",
+//         posts
+//     });
+// }
+
 async function getFeedController(req, res) {
     const user = req.user;
 
-    // Step 1: Get following usernames
     const following = await FollowModel.find({
         follower: user.username,
         status: "accepted"
     }).select("followee");
 
     let followingUsernames = following.map(f => f.followee);
-
-    // include self
     followingUsernames.push(user.username);
 
-    // Step 2: Convert usernames → userIds
     const users = await UserModel.find({
         username: { $in: followingUsernames }
     }).select("_id");
 
     const userIds = users.map(u => u._id);
 
-    // Step 3: Fetch posts
+    // If the user follows nobody yet, show ALL posts (discovery mode)
+    const query = userIds.length <= 1
+        ? {}
+        : { user: { $in: userIds } };
+
+    const rawPosts = await postModel
+        .find(query)
+        .populate("user", "-password")
+        .lean();
+
     const posts = await Promise.all(
-        (await postModel.find({
-            user: { $in: userIds }
-        }).populate("user", "-password").lean())
-        .map(async (post) => {
+        rawPosts.map(async (post) => {
             const isLiked = await LikeModel.findOne({
                 user: user.username,
                 post: post._id.toString()
             });
-
             const likeCount = await LikeModel.countDocuments({
                 post: post._id.toString()
             });
 
+            // Check if logged-in user already follows this post's author
+            const isFollowing = await FollowModel.findOne({
+                follower: user.username,
+                followee: post.user?.username,
+                status: "accepted"
+            });
+
             post.isLiked = Boolean(isLiked);
             post.likeCount = likeCount;
+            post.isOwnPost = post.user?.username === user.username;
+            post.isFollowing = Boolean(isFollowing);
             return post;
         })
     );

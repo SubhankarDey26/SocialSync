@@ -8,6 +8,6 @@ authRouter.post("/register",authController.registerController)
 
 authRouter.post("/login",authController.logincontroller)
 
-authRouter.post("/get-me",IdentifyUser,authController.getMeController)
+authRouter.get("/get-me",IdentifyUser,authController.getMeController)
 
 module.exports=authRouter

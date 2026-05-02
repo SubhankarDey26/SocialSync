@@ -126,41 +126,40 @@ const Post = ({ post, user, onLike }) => {
   const [liked, setLiked] = useState(post.isLiked || false);
   const [saved, setSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likeCount || 0);
-  const [following, setFollowing] = useState(false);
+  // Use server-provided follow state as initial value
+  const [following, setFollowing] = useState(post.isFollowing || false);
+  const [followLoading, setFollowLoading] = useState(false);
 
-  // Sync state when feed reloads
   useEffect(() => {
     setLiked(post.isLiked || false);
     setLikeCount(post.likeCount || 0);
+    setFollowing(post.isFollowing || false);
   }, [post]);
 
-  // ================= LIKE =================
   const handleLike = async () => {
     try {
       await likePost(post._id);
-
-      // Optimistic UI update 🔥
       if (liked) {
         setLikeCount(prev => prev - 1);
       } else {
         setLikeCount(prev => prev + 1);
       }
-
       setLiked(!liked);
-
       if (onLike) onLike();
     } catch (error) {
       console.error("Error liking post:", error);
     }
   };
 
-  // ================= FOLLOW =================
   const handleFollow = async () => {
+    setFollowLoading(true);
     try {
       await followUser(user.username);
       setFollowing(true);
     } catch (err) {
       console.error("Follow error:", err);
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -182,25 +181,28 @@ const Post = ({ post, user, onLike }) => {
 
           <div className="post-user-meta">
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span className="post-username">{username}</span>
+  <span className="post-username">{username}</span>
 
-              {/* FOLLOW BUTTON */}
-              <button
-                onClick={handleFollow}
-                disabled={following}
-                style={{
-                  padding: "4px 8px",
-                  background: following ? "#555" : "#f97316",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: following ? "not-allowed" : "pointer",
-                  fontSize: "12px"
-                }}
-              >
-                {following ? "Following" : "Follow"}
-              </button>
-            </div>
+  {/* Only show follow button on other people's posts */}
+  {!post.isOwnPost && (
+    <button
+      onClick={handleFollow}
+      disabled={following || followLoading}
+      style={{
+        padding: "4px 8px",
+        background: following ? "#555" : "#f97316",
+        color: "white",
+        border: "none",
+        borderRadius: "6px",
+        cursor: following || followLoading ? "not-allowed" : "pointer",
+        fontSize: "12px",
+        opacity: followLoading ? 0.7 : 1
+      }}
+    >
+      {followLoading ? "..." : following ? "Following" : "Follow"}
+    </button>
+  )}
+</div>
 
             <span className="post-time">Just now</span>
           </div>
