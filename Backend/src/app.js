@@ -1,79 +1,34 @@
-const express=require("express")
-const cookieParser=require("cookie-parser")
-const cors=require("cors")
-const authRouter=require("./routes/auth.routes")
-const postRouter=require("../src/routes/post.routes")
-const userRouter=require("../src/routes/user.routes")
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const path = require("path");
 
-const app=express()
-app.use(express.json())
-app.use(cookieParser())
-// app.use(cors({
-//     credentials:true,
-//     origin:"http://localhost:5173"
-// }))
+const authRouter = require("./routes/auth.routes");
+const postRouter = require("./routes/post.routes");
+const userRouter = require("./routes/user.routes");
 
+const app = express();
 
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
 
 app.use(cors({
     origin: true,
     credentials: true
 }));
 
+// API routes (VERY IMPORTANT: first)
+app.use("/api/auth", authRouter);
+app.use("/api/posts", postRouter);
+app.use("/api/users", userRouter);
 
-// app.use(express.static("./public"))
+// Serve frontend
+app.use(express.static(path.join(__dirname, "../public")));
 
-
-
-
-// const path = require("path");
-
-// // Serve static frontend
-// app.use(express.static(path.join(__dirname, "../public")));
-
-// // React fallback (for routes like /login, /profile)
-// app.get("*", (req, res) => {
-//     res.sendFile(path.join(__dirname, "../public/index.html"));
-// });
-
-
-
-
-
-
-
-// app.use("/api/auth",authRouter)
-// app.use("/api/posts",postRouter)
-// app.use("/api/users",userRouter)
-
-
-// app.get("/*", (req, res) => {
-//     res.sendFile(path.join(__dirname, "../public/index.html"));
-// });
-
-// module.exports=app
-
-
-const path = require("path");
-
-// ✅ API ROUTES FIRST
-app.use("/api/auth", authRouter)
-app.use("/api/posts", postRouter)
-app.use("/api/users", userRouter)
-
-// ✅ SERVE FRONTEND
-app.use(express.static(path.join(__dirname, "../public")))
-
-// ✅ FINAL FALLBACK (EXPRESS V5 SAFE)
+// React fallback (Express v5 safe)
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, "../public/index.html"))
-})
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
-
-
-
-
-
-
-
-
+module.exports = app;
