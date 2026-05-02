@@ -1,9 +1,17 @@
 import axios from "axios";
 
+// const api = axios.create({
+//   baseURL: "http://localhost:3000",
+//   withCredentials: true,
+// });
+
+
 const api = axios.create({
-  baseURL: "http://localhost:3000",
-  withCredentials: true,
+    baseURL: "/api/posts",
+    withCredentials: true   // 🔥 MUST FOR COOKIE
 });
+
+
 
 export async function getFeed() {
   const response = await api.get("/api/posts/feed");
