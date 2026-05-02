@@ -1,13 +1,15 @@
 import { useNavigate, useLocation } from "react-router";
+import { useAuth } from "../../Auth/hooks/useAuth";
 
 const Sidebar = ({ user }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { HandleLogout } = useAuth();
 
   const currentPath = location.pathname;
 
-  const handleLogout = () => {
-    // TODO: Add backend logout / token blacklisting logic here
+  const handleLogout = async () => {
+    await HandleLogout();
     navigate("/login");
   };
 

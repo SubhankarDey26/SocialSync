@@ -10,4 +10,6 @@ authRouter.post("/login",authController.logincontroller)
 
 authRouter.get("/get-me",IdentifyUser,authController.getMeController)
 
+authRouter.post("/logout",IdentifyUser,authController.logoutController)
+
 module.exports=authRouter
