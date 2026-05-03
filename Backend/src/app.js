@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -9,26 +10,30 @@ const userRouter = require("./routes/user.routes");
 
 const app = express();
 
-// Middlewares
+// ── Middlewares ──────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+// In production the frontend is served from the same Express origin,
+// so we only need CORS for potential local dev cross-origin calls.
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || true,
+    credentials: true,
+  })
+);
 
-// API routes (VERY IMPORTANT: first)
+// ── API routes (MUST come before static serving) ────────────────────────────
 app.use("/api/auth", authRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
 
-// Serve frontend
+// ── Serve built frontend ─────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "../public")));
 
-// React fallback (Express v5 safe)
+// ── React SPA fallback — send index.html for any unknown route ───────────────
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, "../public/index.html"));
+  res.sendFile(path.join(__dirname, "../public", "index.html"));
 });
 
 module.exports = app;
